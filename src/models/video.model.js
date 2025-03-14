@@ -1,16 +1,13 @@
 import mongoose, { Schema } from "mongoose";
 import mongooseAggregatePaginate from "mongoose-aggregate-paginate-v2";
 
-
-
-
 const vidoeSchema = new Schema({
     videoFile : {
         type: String, //cloudnirry uri
         required: true
     }, 
     thumbnail:{
-        type: String,
+        type: String, //cloudnirry uri,
         required: true
     },
     title:{
@@ -39,11 +36,6 @@ const vidoeSchema = new Schema({
     }
 }, {timestamps: true})
 
-
-
 vidoeSchema.plugin(mongooseAggregatePaginate)
 
-
-
 export const Vidoe = mongoose.model("Vidoe", vidoeSchema)
-

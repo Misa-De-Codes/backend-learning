@@ -1,7 +1,7 @@
-hi im musaddikul islam 
+Hi I'm Misa
 
-this is my backend project....
-im actually learning by building
+This is my backend project....
+Im actually learning by building
 
-- [hi] (https://musa.com)
+-[hi] (https://twitter.com/Misa-De-Codes)
 
