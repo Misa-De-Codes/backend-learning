@@ -1,18 +1,18 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "description": "a basic app to learn",
+  "description": "a basic app to learn how backend works!",
   "type": "module",
   "main": "index.js",
   "scripts": {
     "dev": "nodemon -r dotenv/config ./src/index.js"
   },
   "keywords": [
-    "node",
-    "chai"
+    "",
+    ""
   ],
-  "author": "musa",
-  "license": "ISC",
+  "author": "Misa",
+  "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.1.1",
     "cloudinary": "^2.6.0",

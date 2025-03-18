@@ -1,3 +1,5 @@
+//Just creating a child class for custom error
+
 class ApiError extends Error {
     constructor (
         statusCode,

@@ -1,3 +1,5 @@
+//Just creating a child class for custom error response
+
 class ApiResponse extends Error {
     constructor (statusCode, data, message = "Success") {
         this.statusCode = statusCode
