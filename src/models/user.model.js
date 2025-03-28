@@ -45,14 +45,14 @@ const userSchema = new schema({
 }, {timestamps: true})
 
 //checking the userSchema for modified password and then hashing
-userSchema.pre("save", async function (next) {
+userSchema.pre("save", async function(next) {
     if(!this.isModified("password")) return next();
 
     this.password = await bcrypt.hash(this.password, 10)
     next();
 })
 
-// We are setting some functions inside the methids of mongoose schemas
+// We are setting some functions inside the methods of mongoose schemas
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password)
 }

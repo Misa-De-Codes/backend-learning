@@ -1,8 +1,9 @@
 import { asyncHandler } from "../utils/asyncHandler";
 import { ApiError} from "../utils/ApiError";
-import { User, user } from "../models/user.model.js";
+import { User } from "../models/user.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken"
 
 //
 const generateAccessTokenAndRefereshToken = async (userId) => {
@@ -89,7 +90,7 @@ const registerUser = asyncHandler( async (req, res) => {
 
     // if user not create then error if yes then res.status
     if ( !createdUser ) {
-        throw new ApiError(500, "Something went wwrong while registering the user")
+        throw new ApiError(500, "Something went wrong while registering the user")
     }
     return res.status(201).json(
         new ApiResponse(200, createdUser, "User registered successffully.")
@@ -113,11 +114,12 @@ const loginUser = asyncHandler(async (req, res) => {
    const {email, username, password} = req.body
 
    //checking if user already esits 
-   if (!email || !username) {
+   if (!email && !username) {
         throw new ApiError(400, "username or emial is required!")
    }
    const user = await User.findOne({
     $or: [{username}, {email}]
+
    })
    if (!user) {
         throw new ApiError(404, "user doesnot exist!")
@@ -125,12 +127,13 @@ const loginUser = asyncHandler(async (req, res) => {
    //checking if password is correct
    const isPasswordValid = await user.isPasswordCorrect(password);
    if (!isPasswordValid) {
-        throw new ApiError(404, "Invalid user credencials!")
+        throw new ApiError(404, "Invalid user credentials!")
    }
    const {accessToken, refreshToken} = await generateAccessTokenAndRefereshToken(user._id);
 
    const logedInUser = await User.findById(user._id).select("-password -refreshToken")
 
+   // options is just a object
    const options = { // now can only modifid by server now, so more secure
         httpOnly: true,
         secure: true
@@ -139,7 +142,7 @@ const loginUser = asyncHandler(async (req, res) => {
              .cookie("accessToken", accessToken, options)
              .cookie("refreshToken", refreshToken, options)
              .json(
-                new ApiResponse(200,
+                new ApiResponse(200,    // this is for the case when the user is willing to store the tokens himself, maybe for a phone app (cant store cookie as only for the web) or maybe wants to store in local storage
                 {
                     user: logedInUser, accessToken, refreshToken
                 },
@@ -150,10 +153,47 @@ const loginUser = asyncHandler(async (req, res) => {
 )
 
 // 
-const logoutUser = asyncHandler((req, res) => {
-    
+const logoutUser = asyncHandler(async(req, res) => {
+    await User.findByIdAndUpdate(
+        req.user._id,
+        {
+            $set: {
+                refreshToken: undefined
+            }
+        },
+        {
+            new: true
+        }
+    )
+
+    const options = { // now can only modifid by server now, so more secure
+        httpOnly: true,
+        secure: true
+    }
+
+    return res.status(200).clearCookie("accessToken", options).clearCookie("refreshToken", options).json(new ApiResponse(200, {}, "User loggedout successsfully"))
+
+/*    const decodedToken = jwt.verify(
+        incomingRefreshToken,
+        process.env.REFRESH_TOKEN_SECRET
+    )
+
+    const user = await User.findById(decodedToken?._id)
+
+    if (!user) {
+        throw new ApiError(401, "Invalid refresh token")
+    }
+
+    if (incomingRefreshToken !== user?.refreshToken) {
+        throw new ApiError(401, "Refresh tooken is expired or used")
+    }
+
+    await generateAccessTokenAndRefereshToken(user._id)
+
+*/
+
 })
 
 
 
-export { registerUser, loginUser }
+export { registerUser, loginUser, logoutUser }
